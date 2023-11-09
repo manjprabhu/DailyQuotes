@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
@@ -17,28 +16,27 @@ import com.mnj.dailyquotes.model.repository.QuotesRepository
 import com.mnj.dailyquotes.ui.view.QuotesActivity
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.coroutineScope
+
 
 @HiltWorker
 class DailyQuoteWorker @AssistedInject constructor(
-    @Assisted context: Context,
+    @Assisted val context: Context,
     @Assisted workParams: WorkerParameters,
     private val repo: QuotesRepository
 ) : CoroutineWorker(context, workParams) {
 
-    override suspend fun doWork(): Result {
+    override suspend fun doWork(): Result = coroutineScope {
         println("==>> doWork() ......")
-        CoroutineScope(Dispatchers.IO).launch {
-            val result = repo.getQuoteOfTheDay()
+        val result = repo.getQuoteOfTheDay()
+            println("==>> doWork() isSuccessful......")
 
             if (result.isSuccessful) {
-                println("==>> doWork() isSuccessful......")
-                val notificationIntent = Intent(applicationContext, QuotesActivity::class.java)
-                    .setFlags(
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                    )
+
+                val notificationIntent =
+                    Intent(applicationContext, QuotesActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    }
 
                 val pendingIntent: PendingIntent = PendingIntent.getActivity(
                     applicationContext,
@@ -70,22 +68,20 @@ class DailyQuoteWorker @AssistedInject constructor(
                     )
                     .setAutoCancel(true)
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    val notificationManager: NotificationManager =
-                        applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                val notificationManager: NotificationManager =
+                    applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-                    notificationManager.createNotificationChannel(
-                        NotificationChannel(
-                            applicationContext.getString(R.string.daily_quote_tag),
-                            applicationContext.getString(R.string.daily_quote_tag),
-                            NotificationManager.IMPORTANCE_DEFAULT
-                        )
+                notificationManager.createNotificationChannel(
+                    NotificationChannel(
+                        applicationContext.getString(R.string.daily_quote_tag),
+                        applicationContext.getString(R.string.daily_quote_tag),
+                        NotificationManager.IMPORTANCE_DEFAULT
                     )
-                }
+                )
                 val managerCompat = NotificationManagerCompat.from(applicationContext)
                 managerCompat.notify(Math.random().toInt(), builder.build())
-            }
+
         }
-        return Result.success()
+        Result.success()
     }
 }
