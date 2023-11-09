@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="quoteStyle">
+        <item name="fontFamily">@font/opensansbold</item>
+        <item name="android:textSize">@dimen/size_22sp</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="noQuoteStyle" parent="@style/quoteStyle">
+        <item name="android:textSize">@dimen/size_26sp</item>
+    </style>
+
+    <style name="authorStyle" parent="@style/quoteStyle">
+        <item name="android:textSize">@dimen/size_16sp</item>
+        <item name="fontFamily">@font/opensansregular</item>
+        <item name="android:textColor">?android:attr/textColorSecondary </item>
+    </style>
+
+</resources>

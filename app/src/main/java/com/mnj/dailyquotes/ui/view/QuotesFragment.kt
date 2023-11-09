@@ -1,10 +1,10 @@
 package com.mnj.dailyquotes.ui.view
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -32,18 +32,24 @@ class QuotesFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        showProgressBar()
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.quoteFlow.collect {
-                    println("==>> Quote of the day is :${it.data}")
+
+                    it.data?.let { today ->
+                        hideProgressBar()
+                        _binding?.tvQuote?.text = today.quote
+                        _binding?.tvAuthor?.text = today.author
+                    }
+                    println("==>> Quote of the day is :${it.data?.quote}")
                 }
             }
         }
@@ -57,4 +63,17 @@ class QuotesFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+
+    private fun hideProgressBar() {
+        _binding?.progressQuoteLoading?.visibility = View.GONE
+        _binding?.ccQuotes?.visibility = View.VISIBLE
+        _binding?.clShare?.visibility = View.VISIBLE
+    }
+
+    private fun showProgressBar() {
+        _binding?.progressQuoteLoading?.visibility = View.VISIBLE
+
+    }
+
 }

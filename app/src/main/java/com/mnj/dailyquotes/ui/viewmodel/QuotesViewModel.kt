@@ -16,8 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class QuotesViewModel @Inject constructor(private val repo: QuotesRepository) : ViewModel() {
 
-    private val _quoteFlow: MutableStateFlow<Status<String>> = MutableStateFlow(Status.Loading())
-    val quoteFlow: StateFlow<Status<String>> = _quoteFlow.asStateFlow()
+    private val _quoteFlow: MutableStateFlow<Status<Quote>> = MutableStateFlow(Status.Loading())
+    val quoteFlow: StateFlow<Status<Quote>> = _quoteFlow.asStateFlow()
 
     init {
         getRandomQuote()
@@ -29,9 +29,9 @@ class QuotesViewModel @Inject constructor(private val repo: QuotesRepository) : 
         _quoteFlow.value = handleNetworkResponse(response)
     }
 
-    private fun handleNetworkResponse(response: Response<List<Quote>>): Status<String> {
+    private fun handleNetworkResponse(response: Response<List<Quote>>): Status<Quote> {
         if (response.isSuccessful) {
-            val msg = response.body()!![0].quote
+            val msg = response.body()!![0]
             return Status.Success(msg)
         }
         return Status.Error(response.message())
