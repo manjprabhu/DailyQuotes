@@ -1,5 +1,9 @@
 package com.mnj.dailyquotes.ui.view
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context.CLIPBOARD_SERVICE
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +19,7 @@ import com.mnj.dailyquotes.databinding.FragmentFirstBinding
 import com.mnj.dailyquotes.ui.viewmodel.QuotesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -57,6 +62,30 @@ class QuotesFragment : Fragment() {
         binding.buttonFirst.setOnClickListener {
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
         }
+
+        binding.ivShareQuote.setOnClickListener {
+            copyToClipboard()
+            val sendIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, pasteFromClipboard())
+                type= "text/plain"
+            }
+
+            val shareIntent = Intent.createChooser(sendIntent,null)
+            startActivity(shareIntent)
+        }
+    }
+
+    private fun copyToClipboard() {
+        val textToCopy = binding.tvQuote.text.toString()
+        val clipboardManager = context?.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        val clipData = ClipData.newPlainText("text", textToCopy)
+        clipboardManager.setPrimaryClip(clipData)
+    }
+
+    private fun pasteFromClipboard(): String {
+        val clipboardManager = context?.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        return clipboardManager.primaryClip?.getItemAt(0)?.text.toString()
     }
 
     override fun onDestroyView() {
