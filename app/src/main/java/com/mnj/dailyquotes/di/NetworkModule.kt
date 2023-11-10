@@ -1,5 +1,7 @@
 package com.mnj.dailyquotes.di
 
+import com.mnj.dailyquotes.api.ResponseMessageInterceptor
+import com.mnj.dailyquotes.api.SimpleLoggingInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,17 +18,22 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun providesHttpClient(): OkHttpClient {
+    fun provideOkHttpClient(): OkHttpClient {
         val logging = HttpLoggingInterceptor()
         logging.setLevel(HttpLoggingInterceptor.Level.BODY)
-        return OkHttpClient.Builder().addInterceptor(logging).build()
+        return OkHttpClient.Builder().addInterceptor(SimpleLoggingInterceptor()).build()
     }
 
     @Singleton
     @Provides
-    fun providesRetrofit(okHttpClient: OkHttpClient): Retrofit = Retrofit.Builder()
+    fun providesRetrofitBuilder(okHttpClient: OkHttpClient): Retrofit.Builder = Retrofit.Builder()
         .baseUrl("https://zenquotes.io/api/")
         .addConverterFactory(GsonConverterFactory.create())
         .client(okHttpClient)
-        .build()
+
+    @Singleton
+    @Provides
+    fun providesRetrofit(retrofitBuilder: Retrofit.Builder): Retrofit {
+        return retrofitBuilder.build()
+    }
 }

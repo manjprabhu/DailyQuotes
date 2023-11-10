@@ -31,7 +31,7 @@ class QuotesApplication : Application(), Configuration.Provider {
             .setRequiredNetworkType(NetworkType.UNMETERED)
             .build()
 
-        val workRequest = PeriodicWorkRequestBuilder<DailyQuoteWorker>(1, TimeUnit.MINUTES)
+        val workRequest = PeriodicWorkRequestBuilder<DailyQuoteWorker>(1, TimeUnit.DAYS)
             .build()
 
         WorkManager.getInstance(this)
