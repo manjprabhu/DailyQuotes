@@ -16,6 +16,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.mnj.dailyquotes.R
 import com.mnj.dailyquotes.databinding.FragmentFirstBinding
+import com.mnj.dailyquotes.db.QuoteEntity
 import com.mnj.dailyquotes.ui.viewmodel.QuotesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -29,6 +30,7 @@ class QuotesFragment : Fragment() {
 
     private var _binding: FragmentFirstBinding? = null
     private val viewModel by activityViewModels<QuotesViewModel>()
+    private var quotes: QuoteEntity? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -46,15 +48,25 @@ class QuotesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         showProgressBar()
         viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.quoteFlow.collect {
-
-                    it.data?.let { today ->
-                        hideProgressBar()
-                        _binding?.tvQuote?.text = today.quote
-                        _binding?.tvAuthor?.text = today.author
+            launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.quoteFlow.collect {
+                        it.data?.let { today ->
+                            quotes = today.copy()
+                            hideProgressBar()
+                            _binding?.tvQuote?.text = today.quote
+                            _binding?.tvAuthor?.text = today.author
+                        }
                     }
-                    println("==>> Quote of the day is :${it.data?.quote}")
+                }
+            }
+
+            launch {
+                repeatOnLifecycle((Lifecycle.State.STARTED)) {
+                    viewModel.saveQuoteFlow.collect {
+                        if (it)
+                            binding.ivBookmark.setBackgroundResource(R.drawable.ic_bookmark_filled)
+                    }
                 }
             }
         }
@@ -68,11 +80,15 @@ class QuotesFragment : Fragment() {
             val sendIntent = Intent().apply {
                 action = Intent.ACTION_SEND
                 putExtra(Intent.EXTRA_TEXT, pasteFromClipboard())
-                type= "text/plain"
+                type = "text/plain"
             }
 
-            val shareIntent = Intent.createChooser(sendIntent,null)
+            val shareIntent = Intent.createChooser(sendIntent, null)
             startActivity(shareIntent)
+        }
+
+        binding.ivBookmark.setOnClickListener {
+            quotes?.let { it1 -> viewModel.saveQuote(it1) }
         }
     }
 

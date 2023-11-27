@@ -49,7 +49,7 @@ class DailyQuoteWorker @AssistedInject constructor(
                     applicationContext,
                     applicationContext.getString(R.string.daily_quote_tag)
                 )
-                    .setSmallIcon(R.drawable.ic_launcher_foreground)
+                    .setSmallIcon(R.drawable.launcher)
                     .setContentTitle(applicationContext.getString(R.string.notification_title))
                     .setContentText(
                         result.body()!![0].quote
