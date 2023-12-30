@@ -1,6 +1,5 @@
 package com.mnj.dailyquotes.di
 
-import com.mnj.dailyquotes.api.ResponseMessageInterceptor
 import com.mnj.dailyquotes.api.SimpleLoggingInterceptor
 import dagger.Module
 import dagger.Provides
