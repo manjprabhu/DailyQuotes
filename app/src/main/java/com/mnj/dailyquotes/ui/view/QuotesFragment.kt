@@ -28,20 +28,20 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class QuotesFragment : Fragment() {
 
-    private var _binding: FragmentFirstBinding? = null
+    private lateinit var _binding: FragmentFirstBinding
     private val viewModel by activityViewModels<QuotesViewModel>()
     private var quotes: QuoteEntity? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
-    private val binding get() = _binding!!
+    //private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
-        return binding.root
+        return _binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -54,8 +54,8 @@ class QuotesFragment : Fragment() {
                         it.data?.let { today ->
                             quotes = today.copy()
                             hideProgressBar()
-                            _binding?.tvQuote?.text = today.quote
-                            _binding?.tvAuthor?.text = today.author
+                            _binding.tvQuote.text = today.quote
+                            _binding.tvAuthor.text = today.author
                         }
                     }
                 }
@@ -65,17 +65,17 @@ class QuotesFragment : Fragment() {
                 repeatOnLifecycle((Lifecycle.State.STARTED)) {
                     viewModel.saveQuoteFlow.collect {
                         if (it)
-                            binding.ivBookmark.setBackgroundResource(R.drawable.ic_bookmark_filled)
+                            _binding.ivBookmark.setBackgroundResource(R.drawable.ic_bookmark_filled)
                     }
                 }
             }
         }
 
-        binding.buttonFirst.setOnClickListener {
+        _binding.buttonFirst.setOnClickListener {
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
         }
 
-        binding.ivShareQuote.setOnClickListener {
+        _binding.ivShareQuote.setOnClickListener {
             copyToClipboard()
             val sendIntent = Intent().apply {
                 action = Intent.ACTION_SEND
@@ -87,13 +87,13 @@ class QuotesFragment : Fragment() {
             startActivity(shareIntent)
         }
 
-        binding.ivBookmark.setOnClickListener {
+        _binding.ivBookmark.setOnClickListener {
             quotes?.let { it1 -> viewModel.saveQuote(it1) }
         }
     }
 
     private fun copyToClipboard() {
-        val textToCopy = binding.tvQuote.text.toString()
+        val textToCopy = _binding.tvQuote.text.toString()
         val clipboardManager = context?.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("text", textToCopy)
         clipboardManager.setPrimaryClip(clipData)
@@ -104,20 +104,15 @@ class QuotesFragment : Fragment() {
         return clipboardManager.primaryClip?.getItemAt(0)?.text.toString()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
 
     private fun hideProgressBar() {
-        _binding?.progressQuoteLoading?.visibility = View.GONE
-        _binding?.ccQuotes?.visibility = View.VISIBLE
-        _binding?.clShare?.visibility = View.VISIBLE
+        _binding.progressQuoteLoading.visibility = View.GONE
+        _binding.ccQuotes.visibility = View.VISIBLE
+        _binding.clShare.visibility = View.VISIBLE
     }
 
     private fun showProgressBar() {
-        _binding?.progressQuoteLoading?.visibility = View.VISIBLE
+        _binding.progressQuoteLoading.visibility = View.VISIBLE
 
     }
 
