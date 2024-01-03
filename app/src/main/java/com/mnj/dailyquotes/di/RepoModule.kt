@@ -18,11 +18,11 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class RepoModule {
-
-    @Provides
+//Commented since we are using @Binds in RepositoryModule.kt to provide the binding
+    /*@Provides
     fun provideRepository(apiService: QuotesApi, quoteDao:QuoteDao): QuotesRepository {
         return QuotesRepositoryImpl(apiService,quoteDao)
-    }
+    }*/
 
 //    @Singleton
 //    @Provides
