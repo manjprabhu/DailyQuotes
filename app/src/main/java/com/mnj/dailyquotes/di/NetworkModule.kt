@@ -9,6 +9,8 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Named
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -35,4 +37,44 @@ class NetworkModule {
     fun providesRetrofit(retrofitBuilder: Retrofit.Builder): Retrofit {
         return retrofitBuilder.build()
     }
+
+    //Dummy code to show Qualifier annotation usage
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class ServerOne
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class ServerTwo
+
+    @Provides
+    @Singleton
+    @ServerOne
+    fun providesRetrofitOne(okHttpClient: OkHttpClient) = Retrofit.Builder()
+        .baseUrl("www.example.com")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    @Singleton
+    @Provides
+    @ServerTwo
+    fun providesRetrofitTwo(okHttpClient: OkHttpClient): Retrofit = Retrofit.Builder()
+        .baseUrl("www.someotherurl.com")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    @Singleton
+    @Named("Server1")
+    fun providesRetrofitThree(okHttpClient: OkHttpClient): Retrofit = Retrofit.Builder()
+        .baseUrl("www.someotherurl.com")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    @Singleton
+    @Named("Server2")
+    fun providesRetrofitFour(okHttpClient: OkHttpClient): Retrofit = Retrofit.Builder()
+        .baseUrl("www.someotherurl.com")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
 }
